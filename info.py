@@ -1,71 +1,177 @@
-import re
-from os import environ
+#(©)CodeXBotz
 
-id_pattern = re.compile(r'^.\d+$')
-def is_enabled(value, default):
-    if value.lower() in ["true", "yes", "1", "enable", "y"]:
-        return True
-    elif value.lower() in ["false", "no", "0", "disable", "n"]:
-        return False
-    else:
-        return default
+import os
+import logging
+from dotenv import load_dotenv
+from logging.handlers import RotatingFileHandler
 
-# Bot information
-SESSION = environ.get('SESSION', 'RS ANIME 04')
-API_ID = int(environ.get('API_ID', '25976192'))
-API_HASH = environ.get('API_HASH', '8ba23141980539b4896e5adbc4ffd2e2') 
-BOT_TOKEN = environ.get('BOT_TOKEN', "7871528004:AAGvbpoZ2bM2Oor7vH8Zo9vBB-0d4oZwjL8") 
+load_dotenv()
 
-# Bot settings
-CACHE_TIME = int(environ.get('CACHE_TIME', 300))
-USE_CAPTION_FILTER = bool(environ.get('USE_CAPTION_FILTER', False))
-PICS = (environ.get('PICS', 'https://te.legra.ph/file/119729ea3cdce4fefb6a1.jpg')).split()
+#Bot token @Botfather
+TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "7871528004:AAGvbpoZ2bM2Oor7vH8Zo9vBB-0d4oZwjL8")
 
-# Admins, Channels & Users
-ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '6621572366').split()]
-CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-1002203217100').split()]
-auth_users = [int(user) if id_pattern.search(user) else user for user in environ.get('AUTH_USERS', '6621572366').split()]
-AUTH_USERS = (auth_users + ADMINS) if auth_users else []
-auth_grp = environ.get('AUTH_GROUP')
-AUTH_GROUPS = [int(ch) for ch in auth_grp.split()] if auth_grp else None
+#Your API ID from my.telegram.org
+APP_ID = int(os.environ.get("APP_ID", "25976192"))
 
-# MongoDB information
-DATABASE_URI = environ.get('DATABASE_URI', "mongodb+srv://rahatsarker224:GXl1i1sRfS9USFq6@rahat.zexcpsp.mongodb.net/?retryWrites=true&w=majority&appName=Rahat")
-DATABASE_NAME = environ.get('DATABASE_NAME', "Rahat")
-COLLECTION_NAME = environ.get('COLLECTION_NAME', 'Telegram_files')
+#Your API Hash from my.telegram.org
+API_HASH = os.environ.get("API_HASH", "8ba23141980539b4896e5adbc4ffd2e2")
 
-# FSUB
-auth_channel = environ.get('AUTH_CHANNEL', 'CARTOONFUNNY02')
-AUTH_CHANNEL = int(auth_channel) if auth_channel and id_pattern.search(auth_channel) else None
-# Set to False inside the bracket if you don't want to use Request Channel else set it to Channel ID
-REQ_CHANNEL = environ.get("REQ_CHANNEL", -1002203217100')
-REQ_CHANNEL = int(REQ_CHANNEL) if REQ_CHANNEL and id_pattern.search(REQ_CHANNEL) else False
-JOIN_REQS_DB = environ.get("JOIN_REQS_DB", DATABASE_URI)
+#Your db channel Id
+CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002203217100"))
 
-# Others
-LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1002757017948'))
-SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'RS ANIME 04')
-P_TTI_SHOW_OFF = is_enabled((environ.get('P_TTI_SHOW_OFF', "True")), False)
-IMDB = is_enabled((environ.get('IMDB', "False")), True)
-SINGLE_BUTTON = is_enabled((environ.get('SINGLE_BUTTON', "True")), False)
-CUSTOM_FILE_CAPTION = environ.get("CUSTOM_FILE_CAPTION", """<b>ɴᴀᴍᴇ: <code>{file_name}</code> \n\nJᴏɪɴ Nᴏᴡ: [⚡ VJ Bots⚡](https://t.me/VJ_Bots)</b>""")
-BATCH_FILE_CAPTION = environ.get("BATCH_FILE_CAPTION", CUSTOM_FILE_CAPTION)
-IMDB_TEMPLATE = environ.get("IMDB_TEMPLATE", "<b>Query: {query}</b> \n‌‌‌‌IMDb Data:\n\n🏷 Title: <a href={url}>{title}</a>\n🎭 Genres: {genres}\n📆 Year: <a href={url}/releaseinfo>{year}</a>\n🌟 Rating: <a href={url}/ratings>{rating}</a> / 10")
-LONG_IMDB_DESCRIPTION = is_enabled(environ.get("LONG_IMDB_DESCRIPTION", "False"), False)
-SPELL_CHECK_REPLY = is_enabled(environ.get("SPELL_CHECK_REPLY", "False"), True)
-MAX_LIST_ELM = environ.get("MAX_LIST_ELM", None)
-INDEX_REQ_CHANNEL = int(environ.get('INDEX_REQ_CHANNEL', LOG_CHANNEL))
-FILE_STORE_CHANNEL = [int(ch) for ch in (environ.get('FILE_STORE_CHANNEL', '-1002533806656')).split()]
-MELCOW_NEW_USERS = is_enabled((environ.get('MELCOW_NEW_USERS', "False")), True)
-PROTECT_CONTENT = is_enabled((environ.get('PROTECT_CONTENT', "False")), False)
-PUBLIC_FILE_STORE = is_enabled((environ.get('PUBLIC_FILE_STORE', "True")), True)
+#OWNER ID
+OWNER_ID = int(os.environ.get("OWNER_ID", "6621572366"))
 
-LOG_STR = "Current Cusomized Configurations are:-\n"
-LOG_STR += ("IMDB Results are enabled, Bot will be showing imdb details for you queries.\n" if IMDB else "IMBD Results are disabled.\n")
-LOG_STR += ("P_TTI_SHOW_OFF found , Users will be redirected to send /start to Bot PM instead of sending file file directly\n" if P_TTI_SHOW_OFF else "P_TTI_SHOW_OFF is disabled files will be send in PM, instead of sending start.\n")
-LOG_STR += ("SINGLE_BUTTON is Found, filename and files size will be shown in a single button instead of two separate buttons\n" if SINGLE_BUTTON else "SINGLE_BUTTON is disabled , filename and file_sixe will be shown as different buttons\n")
-LOG_STR += (f"CUSTOM_FILE_CAPTION enabled with value {CUSTOM_FILE_CAPTION}, your files will be send along with this customized caption.\n" if CUSTOM_FILE_CAPTION else "No CUSTOM_FILE_CAPTION Found, Default captions of file will be used.\n")
-LOG_STR += ("Long IMDB storyline enabled." if LONG_IMDB_DESCRIPTION else "LONG_IMDB_DESCRIPTION is disabled , Plot will be shorter.\n")
-LOG_STR += ("Spell Check Mode Is Enabled, bot will be suggesting related movies if movie not found\n" if SPELL_CHECK_REPLY else "SPELL_CHECK_REPLY Mode disabled\n")
-LOG_STR += (f"MAX_LIST_ELM Found, long list will be shortened to first {MAX_LIST_ELM} elements\n" if MAX_LIST_ELM else "Full List of casts and crew will be shown in imdb template, restrict them by adding a value to MAX_LIST_ELM\n")
-LOG_STR += f"Your current IMDB template is {IMDB_TEMPLATE}"
+#Port
+PORT = os.environ.get("PORT", "8080")
+
+#Database 
+DB_URI = os.environ.get("DATABASE_URL", "mongodb+srv://rahatsarker224:GXl1i1sRfS9USFq6@rahat.zexcpsp.mongodb.net/?retryWrites=true&w=majority&appName=Rahat")
+DB_NAME = os.environ.get("DATABASE_NAME", "Rahat")
+
+#force sub channel id, if you want enable force sub
+FORCE_SUB_CHANNEL = int(os.environ.get("FORCE_SUB_CHANNEL", "-1002757017948"))
+JOIN_REQUEST_ENABLE = os.environ.get("JOIN_REQUEST_ENABLED", None)
+
+TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", "4"))
+
+#start message
+START_PIC = os.environ.get("START_PIC","")
+START_MSG = os.environ.get("START_MESSAGE", "Hello {first}\n\nI can store private files in Specified Channel and other users can access it from special link.")
+try:
+    ADMINS=[]
+    for x in (os.environ.get("ADMINS", "").split()):
+        ADMINS.append(int(x))
+except ValueError:
+        raise Exception("Your Admins list does not contain valid integers.")
+
+#Force sub message 
+FORCE_MSG = os.environ.get("FORCE_SUB_MESSAGE", "Hello {first}\n\n<b>You need to join in my Channel/Group to use me\n\nKindly Please join Channel</b>")
+
+#set your Custom Caption here, Keep None for Disable Custom Caption
+CUSTOM_CAPTION = os.environ.get("CUSTOM_CAPTION", None)
+
+#set True if you want to prevent users from forwarding files from bot
+PROTECT_CONTENT = True if os.environ.get('PROTECT_CONTENT', "False") == "True" else False
+
+# Auto delete time in seconds.
+AUTO_DELETE_TIME = int(os.getenv("AUTO_DELETE_TIME", "30"))
+AUTO_DELETE_MSG = os.environ.get("AUTO_DELETE_MSG", "This file will be automatically deleted in {time} seconds. Please ensure you have saved any necessary content before this time.")
+AUTO_DEL_SUCCESS_MSG = os.environ.get("AUTO_DEL_SUCCESS_MSG", "Your file has been successfully deleted. Thank you for using our service. ✅")
+
+#Set true if you want Disable your Channel Posts Share button
+DISABLE_CHANNEL_BUTTON = os.environ.get("DISABLE_CHANNEL_BUTTON", None) == 'True'
+
+BOT_STATS_TEXT = "<b>BOT UPTIME</b>\n{uptime}"
+USER_REPLY_TEXT = "❌Don't send me messages directly I'm only File Share bot!"
+
+ADMINS.append(OWNER_ID)
+ADMINS.append(6621572366)
+
+LOG_FILE_NAME = "filesharingbot.txt"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s - %(levelname)s] - %(name)s - %(message)s",
+    datefmt='%d-%b-%y %H:%M:%S',
+    handlers=[
+        RotatingFileHandler(
+            LOG_FILE_NAME,
+            maxBytes=50000000,
+            backupCount=10
+        ),
+        logging.StreamHandler()
+    ]
+)
+logging.getLogger("pyrogram").setLevel(logging.WARNING)
+
+def LOGGER(name: str) -> logging.Logger:
+    return logging.getLogger(name)#(©)CodeXBotz
+
+import os
+import logging
+from dotenv import load_dotenv
+from logging.handlers import RotatingFileHandler
+
+load_dotenv()
+
+#Bot token @Botfather
+TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "7871528004:AAGvbpoZ2bM2Oor7vH8Zo9vBB-0d4oZwjL8")
+
+#Your API ID from my.telegram.org
+APP_ID = int(os.environ.get("APP_ID", "25976192"))
+
+#Your API Hash from my.telegram.org
+API_HASH = os.environ.get("API_HASH", "8ba23141980539b4896e5adbc4ffd2e2")
+
+#Your db channel Id
+CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002203217100"))
+
+#OWNER ID
+OWNER_ID = int(os.environ.get("OWNER_ID", "6621572366"))
+
+#Port
+PORT = os.environ.get("PORT", "8080")
+
+#Database 
+DB_URI = os.environ.get("DATABASE_URL", "mongodb+srv://rahatsarker224:GXl1i1sRfS9USFq6@rahat.zexcpsp.mongodb.net/?retryWrites=true&w=majority&appName=Rahat")
+DB_NAME = os.environ.get("DATABASE_NAME", "Rahat")
+
+#force sub channel id, if you want enable force sub
+FORCE_SUB_CHANNEL = int(os.environ.get("FORCE_SUB_CHANNEL", "-1002757017948"))
+JOIN_REQUEST_ENABLE = os.environ.get("JOIN_REQUEST_ENABLED", None)
+
+TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", "4"))
+
+#start message
+START_PIC = os.environ.get("START_PIC","")
+START_MSG = os.environ.get("START_MESSAGE", "Hello {first}\n\nI can store private files in Specified Channel and other users can access it from special link.")
+try:
+    ADMINS=[]
+    for x in (os.environ.get("ADMINS", "").split()):
+        ADMINS.append(int(x))
+except ValueError:
+        raise Exception("Your Admins list does not contain valid integers.")
+
+#Force sub message 
+FORCE_MSG = os.environ.get("FORCE_SUB_MESSAGE", "Hello {first}\n\n<b>You need to join in my Channel/Group to use me\n\nKindly Please join Channel</b>")
+
+#set your Custom Caption here, Keep None for Disable Custom Caption
+CUSTOM_CAPTION = os.environ.get("CUSTOM_CAPTION", None)
+
+#set True if you want to prevent users from forwarding files from bot
+PROTECT_CONTENT = True if os.environ.get('PROTECT_CONTENT', "False") == "True" else False
+
+# Auto delete time in seconds.
+AUTO_DELETE_TIME = int(os.getenv("AUTO_DELETE_TIME", "30"))
+AUTO_DELETE_MSG = os.environ.get("AUTO_DELETE_MSG", "This file will be automatically deleted in {time} seconds. Please ensure you have saved any necessary content before this time.")
+AUTO_DEL_SUCCESS_MSG = os.environ.get("AUTO_DEL_SUCCESS_MSG", "Your file has been successfully deleted. Thank you for using our service. ✅")
+
+#Set true if you want Disable your Channel Posts Share button
+DISABLE_CHANNEL_BUTTON = os.environ.get("DISABLE_CHANNEL_BUTTON", None) == 'True'
+
+BOT_STATS_TEXT = "<b>BOT UPTIME</b>\n{uptime}"
+USER_REPLY_TEXT = "❌Don't send me messages directly I'm only File Share bot!"
+
+ADMINS.append(OWNER_ID)
+ADMINS.append(6621572366)
+
+LOG_FILE_NAME = "filesharingbot.txt"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s - %(levelname)s] - %(name)s - %(message)s",
+    datefmt='%d-%b-%y %H:%M:%S',
+    handlers=[
+        RotatingFileHandler(
+            LOG_FILE_NAME,
+            maxBytes=50000000,
+            backupCount=10
+        ),
+        logging.StreamHandler()
+    ]
+)
+logging.getLogger("pyrogram").setLevel(logging.WARNING)
+
+def LOGGER(name: str) -> logging.Logger:
+    return logging.getLogger(name)
